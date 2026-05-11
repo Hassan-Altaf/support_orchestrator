@@ -46,6 +46,12 @@ Thumbs.db
 # --- Claude Code per-machine state ---------------------------------------
 .claude/settings.local.json
 
+# --- Frontend artifacts (frontend/ has its own .gitignore too) ----------
+frontend/node_modules/
+frontend/dist/
+frontend/coverage/
+frontend/.vite/
+
 # --- Project-specific ----------------------------------------------------
 samples/outputs/*.json
 !samples/outputs/.gitkeep

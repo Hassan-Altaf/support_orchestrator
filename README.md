@@ -21,6 +21,24 @@ You'll see the full pipeline (classify → extract → conditional escalate → 
 reply → internal summary) execute against five realistic VoiceSpin support
 scenarios, rendered as rich-formatted panels with a per-node trace table.
 
+## Web UI (separate frontend)
+
+A React 19 + TypeScript + Vite SPA lives in [`frontend/`](./frontend). Submit a
+support message via a polished UI and see the full pipeline result, including
+the per-node trace, escalation context, customer reply, and internal handoff.
+
+```bash
+# Terminal 1 — backend
+make run            # http://localhost:8000
+
+# Terminal 2 — frontend
+cd frontend
+npm install
+npm run dev         # http://localhost:5173  (auto-proxies /api/v1/* to :8000)
+```
+
+See [`frontend/README.md`](./frontend/README.md) for the full architecture.
+
 ## Architecture at a glance
 
 ```mermaid
