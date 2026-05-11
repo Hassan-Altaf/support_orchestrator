@@ -28,17 +28,44 @@ def _classify_failure(exc: BaseException) -> str:
     because provider error bodies have been observed to include partial
     API keys, rate-limit URIs, and internal hostnames.
     """
-    name = type(exc).__name__
-    name_lower = name.lower()
-    if "rate" in name_lower or "ratelimit" in name_lower:
-        return "provider rate-limited"
-    if "timeout" in name_lower:
-        return "provider timeout"
-    if "auth" in name_lower or "permission" in name_lower:
-        return "provider authentication failed"
+    name_lower = type(exc).__name__.lower()
+    # We DO inspect the message text — but only to bucket it into one of
+    # the fixed labels below; the raw message itself never leaves this fn.
+    msg_lower = str(exc).lower()
+
     if "validation" in name_lower:
         # ValidationError after retry budget exhaustion — schema deviation.
         return "model output failed validation after retries"
+    if (
+        "rate" in name_lower
+        or "ratelimit" in name_lower
+        or " 429" in msg_lower
+        or "429 " in msg_lower
+        or "quota" in msg_lower
+        or "exhausted" in msg_lower
+        or "resource_exhausted" in msg_lower
+        or "too many requests" in msg_lower
+    ):
+        return "provider rate-limited or quota exhausted"
+    if (
+        "timeout" in name_lower
+        or "timed out" in msg_lower
+        or " 504" in msg_lower
+        or "504 " in msg_lower
+    ):
+        return "provider timeout"
+    if (
+        "auth" in name_lower
+        or "permission" in name_lower
+        or " 401" in msg_lower
+        or "401 " in msg_lower
+        or " 403" in msg_lower
+        or "403 " in msg_lower
+        or "unauthorized" in msg_lower
+        or "permission_denied" in msg_lower
+        or "invalid api key" in msg_lower
+    ):
+        return "provider authentication failed"
     if "providererror" in name_lower:
         return "provider error"
     return "provider unavailable"
