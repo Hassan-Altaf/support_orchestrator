@@ -29,6 +29,7 @@ dependencies = [
 
   # Logging
   "structlog>=24.4,<25.0",
+  "colorama>=0.4,<1.0",  # enables structlog ConsoleRenderer colors on Windows
 
   # CLI / demo niceties
   "rich>=13.9,<14.0",
