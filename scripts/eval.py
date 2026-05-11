@@ -245,9 +245,7 @@ def _render_report_md(metrics: dict[str, Any], use_mock: bool) -> str:
 
     lines.append("## Confusion matrix (expected -> predicted)")
     lines.append("")
-    cats = sorted(
-        set(metrics["confusion"]) | {p for d in metrics["confusion"].values() for p in d}
-    )
+    cats = sorted(set(metrics["confusion"]) | {p for d in metrics["confusion"].values() for p in d})
     header = "| expected \\ predicted | " + " | ".join(cats) + " |"
     sep = "|---|" + "|".join(["---:"] * len(cats)) + "|"
     lines.append(header)
