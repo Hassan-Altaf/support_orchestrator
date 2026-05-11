@@ -24,7 +24,7 @@ export function App() {
           </div>
           <div className="flex items-center gap-3">
             <a
-              href="https://github.com"
+              href="https://github.com/Hassan-Altaf/support_orchestrator.git"
               target="_blank"
               rel="noreferrer"
               className="hidden text-slate-400 hover:text-slate-700 sm:inline"
