@@ -1,0 +1,52 @@
+[
+  {
+    "id": "critical_bug_deadline",
+    "message": "Our mobile app keeps crashing right after login for all our supervisors. We have a board demo in 2 hours and the team can't see the dashboard. Please help urgently!",
+    "expected": {
+      "category": "technical_bug",
+      "priority": "critical",
+      "escalation_required": true,
+      "urgency": "immediate"
+    }
+  },
+  {
+    "id": "billing_question",
+    "message": "Hi - I think we got billed twice for our March subscription. Could someone look into it and send me a corrected invoice?",
+    "expected": {
+      "category": "billing",
+      "priority": "medium",
+      "escalation_required": false,
+      "urgency": "normal"
+    }
+  },
+  {
+    "id": "howto_sip_trunk",
+    "message": "We're new to VoiceSpin and trying to configure our SIP trunk. Where do I find documentation on the right SIP signaling settings for our PBX?",
+    "expected": {
+      "category": "how_to",
+      "priority": "low",
+      "escalation_required": false,
+      "urgency": "not_urgent"
+    }
+  },
+  {
+    "id": "multi_tenant_outage",
+    "message": "Inbound calls aren't connecting for ANY of our tenants since around 9am Eastern. Customers are calling our reps directly. This is hitting our entire production fleet.",
+    "expected": {
+      "category": "outage",
+      "priority": "critical",
+      "escalation_required": true,
+      "urgency": "immediate"
+    }
+  },
+  {
+    "id": "feature_request_slack",
+    "message": "Hey - it would be amazing if VoiceSpin could push missed-call alerts to our Slack workspace. Right now our team has to manually check the dashboard which slows everything down.",
+    "expected": {
+      "category": "feature_request",
+      "priority": "low",
+      "escalation_required": false,
+      "urgency": "not_urgent"
+    }
+  }
+]

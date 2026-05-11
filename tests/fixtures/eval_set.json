@@ -1,0 +1,52 @@
+[
+  {
+    "id": "eval_01_critical_outage",
+    "message": "Calls completely failing for everyone since 9am ET. Production is dead. Need someone on this NOW.",
+    "expected": {"category": "outage", "priority": "critical"}
+  },
+  {
+    "id": "eval_02_critical_bug",
+    "message": "Mobile app crashes for all supervisors right after login. Board demo in 2 hours. Please help urgently.",
+    "expected": {"category": "technical_bug", "priority": "critical"}
+  },
+  {
+    "id": "eval_03_billing_double_charge",
+    "message": "We were charged twice on the same day for our annual plan. Need an immediate refund and a clean invoice.",
+    "expected": {"category": "billing", "priority": "high"}
+  },
+  {
+    "id": "eval_04_account_lockout",
+    "message": "I'm locked out of my admin account after a password reset and our SSO isn't recognising the new email. Can't manage agents at all.",
+    "expected": {"category": "account_access", "priority": "high"}
+  },
+  {
+    "id": "eval_05_howto_sip",
+    "message": "Where can I find documentation on configuring SIP trunk signalling settings?",
+    "expected": {"category": "how_to", "priority": "low"}
+  },
+  {
+    "id": "eval_06_feature_request",
+    "message": "Would love to see Slack integration for missed-call alerts. Would save my team a lot of time.",
+    "expected": {"category": "feature_request", "priority": "low"}
+  },
+  {
+    "id": "eval_07_intermittent_audio",
+    "message": "Some agents are reporting intermittent audio dropouts on inbound calls, maybe once every 20 calls. Not blocking work but customers are noticing.",
+    "expected": {"category": "technical_bug", "priority": "medium"}
+  },
+  {
+    "id": "eval_08_invoice_lookup",
+    "message": "Hi, can you remind me where I find my invoice from last month? Thanks.",
+    "expected": {"category": "how_to", "priority": "low"}
+  },
+  {
+    "id": "eval_09_plan_change",
+    "message": "We'd like to upgrade from the Growth plan to the Enterprise tier next month. Who do I talk to for pricing details?",
+    "expected": {"category": "billing", "priority": "low"}
+  },
+  {
+    "id": "eval_10_data_concern",
+    "message": "We noticed call recordings from a different tenant showed up in our portal yesterday afternoon. We need this investigated immediately - this is a data-integrity concern for our compliance team.",
+    "expected": {"category": "technical_bug", "priority": "critical"}
+  }
+]
