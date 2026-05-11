@@ -75,9 +75,7 @@ class TestClassifierNode:
         assert len(update["errors"]) == 1
         assert update["errors"][0].startswith("classify:")
 
-    async def test_provider_exception_engages_fallback(
-        self, mock_provider: MockProvider
-    ) -> None:
+    async def test_provider_exception_engages_fallback(self, mock_provider: MockProvider) -> None:
         mock_provider.queue(RuntimeError("simulated upstream outage"))
         node = make_classifier_node(mock_provider, max_retries=2)
         update = await node(initial_state("msg", "req-4"))
