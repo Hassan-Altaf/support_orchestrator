@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from app.config import Settings
 from app.llm.anthropic_provider import AnthropicProvider, AnthropicProviderError
+from app.llm.gemini_provider import GeminiProvider, GeminiProviderError
 from app.llm.mock_provider import MockProvider
 from app.llm.openai_provider import OpenAIProvider, OpenAIProviderError
 from app.llm.provider import LLMProvider, call_with_retry
@@ -16,6 +17,8 @@ from app.llm.recording_provider import RecordingProvider, RecordingProviderError
 __all__ = [
     "AnthropicProvider",
     "AnthropicProviderError",
+    "GeminiProvider",
+    "GeminiProviderError",
     "LLMProvider",
     "MockProvider",
     "OpenAIProvider",
@@ -34,6 +37,8 @@ def get_llm_provider(settings: Settings) -> LLMProvider:
             return OpenAIProvider(settings)
         case "anthropic":
             return AnthropicProvider(settings)
+        case "gemini":
+            return GeminiProvider(settings)
         case "mock":
             return MockProvider()
         case _:  # pragma: no cover — Literal guards this at type-check time

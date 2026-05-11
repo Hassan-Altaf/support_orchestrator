@@ -9,6 +9,7 @@ node fits the LLM provider's structured-output Protocol; the node unwraps
 from __future__ import annotations
 
 from app.domain.models import Classification, EscalationContext, ExtractedInfo
+from app.prompts._sanitize import sanitize_user_input
 
 TEMPERATURE = 0.3
 
@@ -44,8 +45,9 @@ def build_user_prompt(
         if escalation_context is not None
         else "\nEscalation: not required — standard support path.\n"
     )
+    safe = sanitize_user_input(raw_message)
     return (
-        f"Customer support message:\n<<<\n{raw_message}\n>>>\n\n"
+        f"Customer support message:\n<<<\n{safe}\n>>>\n\n"
         f"Internal context for the agent (do NOT echo verbatim):\n"
         f"  category: {classification.category.value}\n"
         f"  priority: {classification.priority.value}\n"

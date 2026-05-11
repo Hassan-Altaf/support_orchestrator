@@ -6,6 +6,7 @@ graph is shared across requests via `app.state.graph`.
 
 from __future__ import annotations
 
+import asyncio
 from datetime import UTC, datetime
 from typing import Any
 
@@ -65,7 +66,20 @@ async def process_support_message(
     )
 
     state = initial_state(raw_message=payload.message, request_id=request_id)
-    final: dict[str, Any] = await graph.ainvoke(state)
+
+    # Graph-level timeout = generous bound on the WHOLE pipeline, distinct
+    # from `request_timeout_seconds` (which bounds a single LLM call).
+    # Worst-case without this: 5 nodes * (1 + max_retries) * per-call-timeout.
+    settings = _settings(request)
+    graph_budget = max(settings.request_timeout_seconds * 4, 60)
+    try:
+        final: dict[str, Any] = await asyncio.wait_for(graph.ainvoke(state), timeout=graph_budget)
+    except TimeoutError as exc:
+        log.error("graph_timeout", graph_budget_s=graph_budget)
+        raise HTTPException(
+            status_code=status.HTTP_504_GATEWAY_TIMEOUT,
+            detail=f"orchestration exceeded the {graph_budget}s budget",
+        ) from exc
 
     # Every node in the graph populates its field with either a real or
     # fallback value, so these should not be None after a normal run.

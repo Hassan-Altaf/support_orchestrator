@@ -26,6 +26,7 @@ dependencies = [
   # LLM SDKs
   "openai>=1.85,<2.0",
   "anthropic>=0.40,<1.0",
+  "google-genai>=0.3,<2.0",  # Gemini (free tier - 1500 req/day on flash)
 
   # Logging
   "structlog>=24.4,<25.0",

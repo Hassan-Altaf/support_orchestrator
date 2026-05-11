@@ -34,8 +34,11 @@ def make_customer_response_node(
     async def respond(state: SupportState) -> dict[str, Any]:
         classification = state["classification"]
         extracted = state["extracted_info"]
-        assert classification is not None, "customer_response invoked without classification"
-        assert extracted is not None, "customer_response invoked without extracted_info"
+        # `if/raise` rather than `assert` so `python -O` can't strip the guard.
+        if classification is None or extracted is None:
+            raise RuntimeError(
+                "customer_response node invoked without upstream classification / extracted_info"
+            )
 
         result, trace_entry, err = await execute_node(
             node_name=NODE_NAME,

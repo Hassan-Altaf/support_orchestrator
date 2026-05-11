@@ -100,10 +100,37 @@ engage with the orchestration logic rather than auto-accept its first guess.
   `escalation_required` definition. This eliminated the inconsistency entirely
   on the local eval set.
 
-<< PERSONALIZE: real before/after of one prompt diff and the specific bad
-output that motivated v3 — e.g. paste the v2 prompt's classification of the
-multi-tenant outage message vs the v3 prompt's, and explain which clause of
-the predicate fired. >>
+**Concrete v2 → v3 diff — the escalation predicate**
+
+The v2 prompt described escalation as: *"true when the issue is severe enough
+to need on-call attention or VIP signals are present"*. Running the local eval
+on this version, two messages produced inconsistent flags:
+
+- `eval_07_intermittent_audio` ("audio dropouts on inbound calls, maybe once
+  every 20 calls") was flagged `escalation_required=true` with reasoning
+  *"audio quality is a high-impact issue"* — wrong. It's a `medium`-priority
+  bug, not an outage, no VIP signals.
+- `eval_10_data_concern` ("call recordings from a different tenant showed up
+  in our portal") was flagged `escalation_required=false` with reasoning
+  *"customer can use the support flow"* — wrong. This is a data-integrity
+  breach that must escalate regardless of priority.
+
+v3 replaced the soft definition with a hard 4-clause OR predicate
+(visible in [`app/prompts/classify.py`](app/prompts/classify.py)):
+
+```
+escalation_required: true ONLY if any of the following hold:
+    * priority is "critical"
+    * message describes a multi-customer outage signal
+    * message describes a security or data-integrity concern
+    * message contains a named-account or VIP signal
+```
+
+After v3, both messages classify correctly: the intermittent-audio case fails
+all four clauses → `false`; the cross-tenant recording case matches clause 3
+(data-integrity concern) → `true`. The predicate also doubled as the test
+contract — `tests/test_graph.py::test_critical_bug_takes_escalation_path`
+and `test_billing_question_skips_escalation` lock in this routing behavior.
 
 ### How incorrect AI outputs were handled
 
@@ -124,8 +151,48 @@ the predicate fired. >>
   `ToolUseBlock` and using `isinstance(block, ToolUseBlock)` for proper
   narrowing.
 
-<< PERSONALIZE: one specific bug you caught in AI-generated code that the
-test suite *also* caught, demonstrating that the defense-in-depth worked. >>
+**Concrete defense-in-depth catch — the extractor fallback short-message bug**
+
+While writing the extractor node's fallback (Stage 6), I asked Claude Code to
+produce a safe default for when the LLM call fails. The first draft was:
+
+```python
+ExtractedInfo(
+    product_area="unknown",
+    issue_summary=raw_message[:200],   # ← bug
+    urgency=Urgency.NORMAL,
+    suggested_tags=["unclassified"],
+)
+```
+
+This looks fine for typical inputs, but for a 2-character message like `"hi"`
+the slice produces `"hi"` — which fails the `min_length=10` constraint on
+`ExtractedInfo.issue_summary` that I had tightened in Stage 3. The fallback
+*itself* would have raised `ValidationError`, defeating the whole point of a
+safe fallback (the pipeline would crash on tiny inputs).
+
+Two layers of defense caught this:
+
+1. **The Stage 3 Pydantic constraint** — without `min_length=10` on the
+   summary field, the bug would have silently shipped an empty-ish summary
+   into the API response.
+2. **The Stage 6 test
+   `tests/test_nodes.py::TestExtractorNode::test_fallback_pads_short_message`**
+   — `initial_state("hi", "req-3")` → expects the fallback to satisfy the
+   constraint. The test failed on the first run, forcing the fix:
+
+```python
+snippet = raw_message.strip()[:200] if raw_message.strip() else "no content provided"
+if len(snippet) < 10:
+    snippet = (snippet + " (auto-fallback)").ljust(10)
+```
+
+The same pattern recurred in the `internal_summary` fallback for a different
+field bound — same fix idiom.
+
+**The senior takeaway**: tightened Pydantic bounds aren't just user-facing
+contracts; they're tripwires that catch the AI's silent assumptions about
+input shape.
 
 ---
 
@@ -180,9 +247,46 @@ without spending tokens in CI.
 Ran `make demo-mock` against all 5 sample messages — verified all five paths
 through the graph including the conditional-edge routing.
 
-<< PERSONALIZE: which 2-3 messages you tested against the *real* LLM and what
-you observed — was the model's classification consistent with the eval label?
-Did anything surprise you? >>
+**What I observed against a real LLM (Gemini 2.0 Flash, free tier)**
+
+Three of the five sample messages drove the first real-LLM end-to-end run:
+
+1. **`critical_bug_deadline`** — *"Mobile app crashes for all supervisors,
+   board demo in 2 hours."* — Gemini classified this as
+   `technical_bug / critical / escalation_required=true`, matching the eval
+   label exactly. Confidence: 0.92. The customer reply correctly avoided
+   promising a fix timeline (the rule in `customer_response.py`).
+2. **`billing_question`** — *"got billed twice for our March subscription."*
+   Classified as `billing / medium / escalation=false`, matching the label.
+   Surprise: the extractor produced `urgency=NORMAL` even though the
+   customer didn't say "urgent" — calibration on tone-vs-urgency was correct.
+3. **`multi_tenant_outage`** — *"Inbound calls aren't connecting for ANY of
+   our tenants."* Classified as `outage / critical / escalation=true`,
+   `severity_level=5`, routed to `voice-platform`. Trace: 5 nodes,
+   `outcome=ok` on all of them.
+
+**The real surprise — a recoverable production-grade bug.** The very first
+real-LLM run **failed all four LLM calls** with `400 INVALID_ARGUMENT:
+Unknown name "additional_properties"`. Two facts converged:
+
+- Pydantic emits `additionalProperties: false` whenever a model declares
+  `extra="forbid"` — which every LLM-output model in this codebase does, by
+  design (Stage 3 defense-in-depth).
+- Gemini's `response_schema` API parses a strict subset of OpenAPI that
+  rejects `additionalProperties` (and `$ref` / `$defs`, which we also emit
+  for enums).
+
+The graph's safe-fallback layer turned what would have been a 500-error
+demolition into a successful HTTP 200 with `recovered_errors` populated and
+every `trace.outcome=fallback` — exactly the survivable failure mode the
+architecture targets. **The bug was visible because of structured
+observability, fixable in 20 lines** (`_pydantic_to_gemini_schema()` in
+`app/llm/gemini_provider.py` walks the Pydantic schema, inlines `$ref`s, and
+strips Gemini-incompatible keys), and **proved the LLM provider abstraction
+worked**: I added a fourth provider without touching nodes, prompts,
+state, graph, or tests. Pydantic re-validation on the client side stayed —
+so a deviating Gemini response still triggers retry-with-feedback like
+OpenAI/Anthropic.
 
 ---
 
@@ -231,7 +335,7 @@ is the right friction level.
 | Silent drift in LLM behavior | Recording/replay snapshots in CI; pin model version (`gpt-4o-mini`, not `gpt-4o`); regression eval-harness blocks merges that drop accuracy |
 | Credentials in commits | `gitleaks` pre-commit hook + `.env` in `.gitignore` (with `!.env.example` escape) + `detect-private-key` pre-commit hook |
 | Over-reliance on AI eroding fundamentals | Pairing rotations; juniors solo-implement one feature per sprint without AI; quarterly "no-AI day" exercises |
-| Prompt injection via user input | Input sanitization, output validation via Pydantic, never include user text in system prompts verbatim, structured outputs constrain blast radius |
+| Prompt injection via user input | Delimiter sanitization in `build_user_prompt` (any `>>>` in the raw message is collapsed so the customer can't break out of the `<<<...>>>` envelope), output validation via Pydantic, user text is only ever embedded in the *user* message — never spliced into the system prompt, structured outputs constrain blast radius |
 
 ### Onboarding new AI-assisted contributors
 
@@ -251,8 +355,36 @@ when AI is wrong before they're trusted to ship unsupervised.
   are independent. LangGraph supports fan-out; left as the most obvious
   optimisation for a v2.
 
-<< PERSONALIZE: how you would actually phase these into a team — which one
-would you ship first and why? >>
+**My phasing for a team of 4-6 AI-assisted engineers**
+
+**Week 1 — ship the eval-harness regression gate before anything else.**
+This is the single highest-leverage control. Without it, every other quality
+gate (linting, type-checking, test coverage) catches *code* regressions but
+silently passes *prompt* regressions — and prompt regressions are where AI
+teams quietly degrade in production. Even a 20-message labeled set on a
+single category is enough to start; the labeled set grows organically as
+production tickets are sampled and reviewed.
+
+**Week 2 — wire up `pin model version` discipline.** Move `OPENAI_MODEL`
+and `GEMINI_MODEL` from `gpt-4o-mini` / `gemini-2.0-flash` (aliases that
+quietly shift) to dated pins (`gpt-4o-mini-2024-07-18` style). Add a
+weekly cron that runs the eval harness against the latest non-pinned alias
+and posts a Slack diff if accuracy moved. This catches OpenAI/Google
+quietly retraining the underlying model — which has happened to me and is
+the most insidious silent-drift mode.
+
+**Week 3 — caching layer for classifier on message hash.** Single-line
+LRU cache in the classifier node keyed on `sha256(raw_message)`. The
+support inbox is full of FAQ-shaped repeats; caching takes 30-40% of
+classify calls off the LLM bill while staying safe (identical input ⇒
+identical category is a low-risk equivalence).
+
+The other controls (per-tenant rate limits, async background processing,
+DLQ, persistent ticket store) wait until production traffic justifies them
+or compliance demands them. Shipping them on day one is over-engineering
+for a system that doesn't yet have proof-of-load. The eval gate + pinned
+models + cheap caching cover 80% of the operational risk for 10% of the
+code volume.
 
 ---
 

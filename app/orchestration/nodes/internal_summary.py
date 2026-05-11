@@ -39,8 +39,11 @@ def make_internal_summary_node(
     async def summarize(state: SupportState) -> dict[str, Any]:
         classification = state["classification"]
         extracted = state["extracted_info"]
-        assert classification is not None, "internal_summary invoked without classification"
-        assert extracted is not None, "internal_summary invoked without extracted_info"
+        # `if/raise` rather than `assert` so `python -O` can't strip the guard.
+        if classification is None or extracted is None:
+            raise RuntimeError(
+                "internal_summary node invoked without upstream classification / extracted_info"
+            )
 
         result, trace_entry, err = await execute_node(
             node_name=NODE_NAME,

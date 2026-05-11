@@ -12,6 +12,8 @@ Design notes
 
 from __future__ import annotations
 
+from app.prompts._sanitize import sanitize_user_input
+
 TEMPERATURE = 0.0
 
 SYSTEM_PROMPT = """You are a senior support triage analyst at VoiceSpin, a B2B SaaS company providing telephony software for call centers (outbound dialers, inbound IVR, SIP trunking, call recording, agent desktops).
@@ -42,4 +44,5 @@ Respond with structured output matching the schema. No prose, no commentary, no 
 
 def build_user_prompt(raw_message: str) -> str:
     """Wrap the customer message in a clearly delimited container."""
-    return f"Customer support message:\n<<<\n{raw_message}\n>>>"
+    safe = sanitize_user_input(raw_message)
+    return f"Customer support message:\n<<<\n{safe}\n>>>"

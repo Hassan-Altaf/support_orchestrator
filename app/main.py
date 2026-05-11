@@ -84,12 +84,22 @@ def create_app(
     if provider is not None:
         app.state.provider = provider
 
-    # CORS: permissive for the assessment; ARCHITECTURE.md notes tightening
-    # to an explicit allowlist before any real-world deployment.
+    # CORS: per the W3C spec, `allow_origins=["*"]` combined with
+    # `allow_credentials=True` is invalid — browsers silently reject it. We
+    # only opt into credentials when a concrete origin allowlist is configured.
+    wildcard_origin = "*" in settings.cors_origins
+    if wildcard_origin and len(settings.cors_origins) > 1:
+        get_logger("app.cors").warning(
+            "cors_wildcard_with_explicit_origins",
+            origins=settings.cors_origins,
+            note="'*' overrides any explicit origins; collapsing to ['*'].",
+        )
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins,
-        allow_credentials=True,
+        # Credentials require a concrete origin allowlist per the CORS spec.
+        # Tighten cors_origins to a real list (no '*') to re-enable cookies/auth.
+        allow_credentials=not wildcard_origin,
         allow_methods=["*"],
         allow_headers=["*"],
     )

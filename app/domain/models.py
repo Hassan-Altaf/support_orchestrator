@@ -146,7 +146,11 @@ class TicketProcessingResult(BaseModel):
     classification: Classification
     extracted_info: ExtractedInfo
     escalation_context: EscalationContext | None
-    customer_response: str = Field(min_length=1, max_length=2000)
+    # Aligned with CustomerResponseDraft.response so the API result honors the
+    # same lower bound as the LLM-output contract (the node populates this
+    # from CustomerResponseDraft.response or the templated fallback, both
+    # of which are >= 20 chars).
+    customer_response: str = Field(min_length=20, max_length=2000)
     internal_summary: InternalSummary
     processing_trace: list[TraceEntry]
     recovered_errors: list[str] = Field(default_factory=list)

@@ -20,6 +20,30 @@ from app.utils.logging import get_logger
 T = TypeVar("T", bound=BaseModel)
 
 
+def _classify_failure(exc: BaseException) -> str:
+    """Map a node-level exception to a coarse, leak-safe client summary.
+
+    The full exception goes to server-side logs; this string is what we
+    expose in API responses. We never include the original message text
+    because provider error bodies have been observed to include partial
+    API keys, rate-limit URIs, and internal hostnames.
+    """
+    name = type(exc).__name__
+    name_lower = name.lower()
+    if "rate" in name_lower or "ratelimit" in name_lower:
+        return "provider rate-limited"
+    if "timeout" in name_lower:
+        return "provider timeout"
+    if "auth" in name_lower or "permission" in name_lower:
+        return "provider authentication failed"
+    if "validation" in name_lower:
+        # ValidationError after retry budget exhaustion — schema deviation.
+        return "model output failed validation after retries"
+    if "providererror" in name_lower:
+        return "provider error"
+    return "provider unavailable"
+
+
 async def execute_node(
     *,
     node_name: str,
@@ -55,17 +79,29 @@ async def execute_node(
         )
     except Exception as e:
         duration_ms = int((time.perf_counter() - start) * 1000)
-        err_summary = f"{type(e).__name__}: {str(e)[:200]}"
-        log.warning("node_fallback", duration_ms=duration_ms, error=err_summary)
+        # Two strings, by design:
+        #  * `internal_detail` — full exception type + message; sent only to
+        #    server-side structured logs (provider error bodies may contain
+        #    partial API keys, internal URLs, rate-limit URIs, etc.)
+        #  * `client_summary` — coarse, leak-safe; this is what we expose to
+        #    the API caller via `recovered_errors` and the trace's `detail`.
+        internal_detail = f"{type(e).__name__}: {str(e)[:500]}"
+        client_summary = _classify_failure(e)
+        log.warning(
+            "node_fallback",
+            duration_ms=duration_ms,
+            error=internal_detail,
+            client_summary=client_summary,
+        )
         return (
             fallback,
             TraceEntry(
                 node=node_name,
                 duration_ms=duration_ms,
                 outcome="fallback",
-                detail=err_summary[:200],
+                detail=client_summary,
             ),
-            f"{node_name}: {err_summary}",
+            f"{node_name}: {client_summary}",
         )
 
     duration_ms = int((time.perf_counter() - start) * 1000)

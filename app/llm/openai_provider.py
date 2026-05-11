@@ -36,10 +36,15 @@ class OpenAIProvider:
                 "OpenAIProvider requires OPENAI_API_KEY. "
                 "Set it in .env or switch LLM_PROVIDER to mock."
             )
-        self._client = AsyncOpenAI(
-            api_key=settings.openai_api_key.get_secret_value(),
-            timeout=settings.request_timeout_seconds,
-        )
+        # `base_url` lets the same provider hit any OpenAI-compatible API
+        # (Groq, Together, vLLM, etc.). Default uses the OpenAI endpoint.
+        client_kwargs: dict[str, object] = {
+            "api_key": settings.openai_api_key.get_secret_value(),
+            "timeout": settings.request_timeout_seconds,
+        }
+        if settings.openai_base_url:
+            client_kwargs["base_url"] = settings.openai_base_url
+        self._client = AsyncOpenAI(**client_kwargs)  # type: ignore[arg-type]
         self._model = settings.openai_model
 
     async def complete_structured(

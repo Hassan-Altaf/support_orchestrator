@@ -8,6 +8,7 @@ prompt usable in unit tests that exercise this node in isolation.
 from __future__ import annotations
 
 from app.domain.models import IssueCategory
+from app.prompts._sanitize import sanitize_user_input
 
 TEMPERATURE = 0.0
 
@@ -46,4 +47,5 @@ def build_user_prompt(raw_message: str, category: IssueCategory | None = None) -
         if category is not None
         else ""
     )
-    return f"{category_hint}Customer support message:\n<<<\n{raw_message}\n>>>"
+    safe = sanitize_user_input(raw_message)
+    return f"{category_hint}Customer support message:\n<<<\n{safe}\n>>>"

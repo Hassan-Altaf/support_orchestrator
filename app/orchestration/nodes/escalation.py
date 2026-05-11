@@ -36,9 +36,12 @@ def make_escalation_node(
         extracted = state["extracted_info"]
         # Defensive: if upstream nodes catastrophically failed, those would
         # still be populated by fallbacks. The conditional edge wouldn't
-        # have routed us here without a classification, but assert in case.
-        assert classification is not None, "escalation invoked without classification"
-        assert extracted is not None, "escalation invoked without extracted_info"
+        # have routed us here without a classification — but we raise
+        # explicitly (not `assert`) so `python -O` cannot strip the guard.
+        if classification is None or extracted is None:
+            raise RuntimeError(
+                "escalation node invoked without upstream classification / extracted_info"
+            )
 
         result, trace_entry, err = await execute_node(
             node_name=NODE_NAME,

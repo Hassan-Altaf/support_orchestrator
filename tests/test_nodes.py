@@ -81,7 +81,10 @@ class TestClassifierNode:
         update = await node(initial_state("msg", "req-4"))
 
         assert update["trace"][0].outcome == "fallback"
-        assert "RuntimeError" in update["errors"][0]
+        # The client-facing summary intentionally hides the exception type
+        # (which can leak provider URLs / partial keys). Full detail is in logs.
+        assert update["errors"][0].startswith("classify: ")
+        assert "provider" in update["errors"][0]
 
 
 # =============================================================================
@@ -263,5 +266,6 @@ class TestPreconditionAsserts:
     ) -> None:
         state = initial_state("msg", "req-1")
         state["extracted_info"] = good_extracted_info()
-        with pytest.raises(AssertionError):
+        # Guard is `if/raise RuntimeError` (not `assert`) so it survives `python -O`.
+        with pytest.raises(RuntimeError, match="escalation node invoked without upstream"):
             await make_escalation_node(mock_provider)(state)

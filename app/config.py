@@ -32,7 +32,7 @@ def _split_csv(value: str | list[str]) -> list[str]:
 CSVList = Annotated[list[str], NoDecode, BeforeValidator(_split_csv)]
 
 
-LLMProviderName = Literal["openai", "anthropic", "mock"]
+LLMProviderName = Literal["openai", "anthropic", "gemini", "mock"]
 LogLevel = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
 LogFormat = Literal["json", "console"]
 
@@ -51,8 +51,14 @@ class Settings(BaseSettings):
     llm_provider: LLMProviderName = "openai"
     openai_api_key: SecretStr | None = None
     anthropic_api_key: SecretStr | None = None
+    gemini_api_key: SecretStr | None = None
     openai_model: str = "gpt-4o-mini"
     anthropic_model: str = "claude-sonnet-4-5"
+    gemini_model: str = "gemini-2.0-flash"
+    # Optional override — point OPENAI_BASE_URL at an OpenAI-compatible API
+    # (e.g. https://api.groq.com/openai/v1) to use Groq with the OpenAI
+    # SDK while keeping the same provider code.
+    openai_base_url: str | None = None
 
     # ---- Orchestration ---------------------------------------------------
     max_retries: int = Field(default=2, ge=0, le=5)
@@ -75,6 +81,11 @@ class Settings(BaseSettings):
             raise ValueError(
                 "LLM_PROVIDER=anthropic requires ANTHROPIC_API_KEY "
                 "(set it in .env or as an environment variable, or use LLM_PROVIDER=mock)."
+            )
+        if self.llm_provider == "gemini" and self.gemini_api_key is None:
+            raise ValueError(
+                "LLM_PROVIDER=gemini requires GEMINI_API_KEY "
+                "(get a free key at https://aistudio.google.com/, or use LLM_PROVIDER=mock)."
             )
         return self
 
