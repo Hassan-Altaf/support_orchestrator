@@ -106,6 +106,19 @@ class InternalSummary(BaseModel):
     handoff_team: str = Field(min_length=2, max_length=80)
 
 
+class CustomerResponseDraft(BaseModel):
+    """Customer-response-node LLM output: a single-field wrapper for the reply text.
+
+    The LLM provider Protocol requires a Pydantic model as its structured-output
+    target, so we wrap the free-form reply in a one-field model. The node then
+    unwraps to the plain string assigned to `TicketProcessingResult.customer_response`.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    response: str = Field(min_length=20, max_length=2000)
+
+
 # =============================================================================
 # Internal observability
 # =============================================================================
