@@ -1,0 +1,145 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "support-orchestrator"
+version = "0.1.0"
+description = "AI-powered, multi-step support ticket orchestration service (FastAPI + LangGraph)."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Proprietary" }
+authors = [{ name = "Hassan Altaf" }]
+
+dependencies = [
+  # Web framework
+  "fastapi>=0.115,<1.0",
+  "uvicorn[standard]>=0.32,<1.0",
+
+  # Validation & settings
+  "pydantic>=2.10,<3.0",
+  "pydantic-settings>=2.6,<3.0",
+
+  # Orchestration
+  "langgraph>=1.0,<2.0",
+
+  # LLM SDKs
+  "openai>=1.85,<2.0",
+  "anthropic>=0.40,<1.0",
+
+  # Logging
+  "structlog>=24.4,<25.0",
+
+  # CLI / demo niceties
+  "rich>=13.9,<14.0",
+  "typer>=0.13,<1.0",
+
+  # HTTP client (used by tests & providers)
+  "httpx>=0.28,<1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.3,<9.0",
+  "pytest-asyncio>=0.24,<1.0",
+  "pytest-cov>=6.0,<7.0",
+  "ruff>=0.8,<1.0",
+  "mypy>=1.13,<2.0",
+  "pre-commit>=4.0,<5.0",
+  "types-requests>=2.32,<3.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["app*"]
+exclude = ["tests*", "scripts*", "samples*"]
+
+# ---------------------------------------------------------------------------
+# Ruff (lint + format)
+# ---------------------------------------------------------------------------
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = ["samples", "tests/fixtures/recordings"]
+
+[tool.ruff.lint]
+select = [
+  "E",    # pycodestyle errors
+  "W",    # pycodestyle warnings
+  "F",    # pyflakes
+  "I",    # isort
+  "B",    # bugbear
+  "UP",   # pyupgrade
+  "SIM",  # simplify
+  "C4",   # comprehensions
+  "RUF",  # ruff-specific
+  "ASYNC",
+]
+ignore = [
+  "E501",   # line-too-long handled by formatter
+  "B008",   # function call in default arg (FastAPI Depends pattern)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["B011", "SIM117"]
+"scripts/**" = ["T201"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+# ---------------------------------------------------------------------------
+# Mypy — disallow_untyped_defs (NOT --strict; pragmatic for shipping)
+# ---------------------------------------------------------------------------
+[tool.mypy]
+python_version = "3.11"
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+no_implicit_optional = true
+show_error_codes = true
+ignore_missing_imports = true
+exclude = ["samples/", "tests/fixtures/"]
+
+[[tool.mypy.overrides]]
+module = ["tests.*", "scripts.*"]
+disallow_untyped_defs = false
+
+# ---------------------------------------------------------------------------
+# Pytest
+# ---------------------------------------------------------------------------
+[tool.pytest.ini_options]
+minversion = "8.0"
+asyncio_mode = "auto"
+testpaths = ["tests"]
+addopts = [
+  "-ra",
+  "--strict-markers",
+  "--strict-config",
+]
+markers = [
+  "integration: integration tests touching the compiled graph",
+  "api: HTTP-level tests via FastAPI TestClient",
+]
+
+# ---------------------------------------------------------------------------
+# Coverage
+# ---------------------------------------------------------------------------
+[tool.coverage.run]
+branch = true
+source = ["app"]
+omit = [
+  "app/llm/recording_provider.py",  # exercised by manual record/replay flows
+]
+
+[tool.coverage.report]
+exclude_lines = [
+  "pragma: no cover",
+  "if TYPE_CHECKING:",
+  "raise NotImplementedError",
+  "\\.\\.\\.$",
+]
+show_missing = true
+skip_covered = false

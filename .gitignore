@@ -1,0 +1,55 @@
+# --- Python ---------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+.installed.cfg
+pip-log.txt
+pip-delete-this-directory.txt
+
+# --- Virtualenvs ----------------------------------------------------------
+.venv/
+venv/
+env/
+ENV/
+
+# --- Tooling caches -------------------------------------------------------
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.hypothesis/
+.tox/
+.nox/
+
+# --- Secrets & local config ----------------------------------------------
+.env
+.env.*
+!.env.example
+
+# --- Editors / OS --------------------------------------------------------
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# --- Claude Code per-machine state ---------------------------------------
+.claude/settings.local.json
+
+# --- Project-specific ----------------------------------------------------
+samples/outputs/*.json
+!samples/outputs/.gitkeep
+tests/fixtures/recordings/*.json
+!tests/fixtures/recordings/.gitkeep
+
+# Allow committing curated demo runs explicitly via `git add -f`
