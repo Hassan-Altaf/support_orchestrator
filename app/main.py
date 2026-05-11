@@ -50,6 +50,12 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         llm_provider=settings.llm_provider,
         app_version=settings.app_version,
         max_retries=settings.max_retries,
+        # Surface which upstream endpoint will actually be hit — makes
+        # OpenAI-compatible-provider misconfig (e.g. OPENAI_BASE_URL left
+        # blank when expecting DashScope/Groq) obvious at boot rather
+        # than after the first 401 in the trace.
+        openai_model=settings.openai_model if settings.llm_provider == "openai" else None,
+        openai_base_url=settings.openai_base_url or "default (api.openai.com)",
     )
     try:
         yield
