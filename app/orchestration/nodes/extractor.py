@@ -7,6 +7,7 @@ extraction. Falls back gracefully if classification is somehow missing.
 from __future__ import annotations
 
 from collections.abc import Awaitable, Callable
+from typing import Any
 
 from app.domain.models import ExtractedInfo, Urgency
 from app.llm.provider import LLMProvider
@@ -35,8 +36,8 @@ def _fallback_for(raw_message: str) -> ExtractedInfo:
 def make_extractor_node(
     provider: LLMProvider,
     max_retries: int = 2,
-) -> Callable[[SupportState], Awaitable[dict]]:
-    async def extractor(state: SupportState) -> dict:
+) -> Callable[[SupportState], Awaitable[dict[str, Any]]]:
+    async def extractor(state: SupportState) -> dict[str, Any]:
         classification = state.get("classification")
         category = classification.category if classification is not None else None
 
@@ -51,7 +52,7 @@ def make_extractor_node(
             temperature=extract.TEMPERATURE,
             fallback=_fallback_for(state["raw_message"]),
         )
-        update: dict = {"extracted_info": result, "trace": [trace_entry]}
+        update: dict[str, Any] = {"extracted_info": result, "trace": [trace_entry]}
         if err is not None:
             update["errors"] = [err]
         return update

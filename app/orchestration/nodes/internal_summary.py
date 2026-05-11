@@ -8,6 +8,7 @@ still has the verbatim customer text even when the model failed.
 from __future__ import annotations
 
 from collections.abc import Awaitable, Callable
+from typing import Any
 
 from app.domain.models import InternalSummary
 from app.llm.provider import LLMProvider
@@ -34,8 +35,8 @@ def _fallback_for(raw_message: str) -> InternalSummary:
 def make_internal_summary_node(
     provider: LLMProvider,
     max_retries: int = 2,
-) -> Callable[[SupportState], Awaitable[dict]]:
-    async def summarize(state: SupportState) -> dict:
+) -> Callable[[SupportState], Awaitable[dict[str, Any]]]:
+    async def summarize(state: SupportState) -> dict[str, Any]:
         classification = state["classification"]
         extracted = state["extracted_info"]
         assert classification is not None, "internal_summary invoked without classification"
@@ -57,7 +58,7 @@ def make_internal_summary_node(
             temperature=internal_summary.TEMPERATURE,
             fallback=_fallback_for(state["raw_message"]),
         )
-        update: dict = {"internal_summary": result, "trace": [trace_entry]}
+        update: dict[str, Any] = {"internal_summary": result, "trace": [trace_entry]}
         if err is not None:
             update["errors"] = [err]
         return update

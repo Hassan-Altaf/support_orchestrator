@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Awaitable, Callable
+from typing import Any
 
 from app.domain.models import Classification, IssueCategory, Priority
 from app.llm.provider import LLMProvider
@@ -25,10 +26,10 @@ _FALLBACK = Classification(
 def make_classifier_node(
     provider: LLMProvider,
     max_retries: int = 2,
-) -> Callable[[SupportState], Awaitable[dict]]:
+) -> Callable[[SupportState], Awaitable[dict[str, Any]]]:
     """Build the classifier node with provider + retry budget bound."""
 
-    async def classifier(state: SupportState) -> dict:
+    async def classifier(state: SupportState) -> dict[str, Any]:
         result, trace_entry, err = await execute_node(
             node_name=NODE_NAME,
             state=state,
@@ -40,7 +41,7 @@ def make_classifier_node(
             temperature=classify.TEMPERATURE,
             fallback=_FALLBACK,
         )
-        update: dict = {"classification": result, "trace": [trace_entry]}
+        update: dict[str, Any] = {"classification": result, "trace": [trace_entry]}
         if err is not None:
             update["errors"] = [err]
         return update

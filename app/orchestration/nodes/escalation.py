@@ -8,6 +8,7 @@ classification + extracted_info as context for severity/team/SLA.
 from __future__ import annotations
 
 from collections.abc import Awaitable, Callable
+from typing import Any
 
 from app.domain.models import EscalationContext
 from app.llm.provider import LLMProvider
@@ -29,8 +30,8 @@ _FALLBACK = EscalationContext(
 def make_escalation_node(
     provider: LLMProvider,
     max_retries: int = 2,
-) -> Callable[[SupportState], Awaitable[dict]]:
-    async def escalation_handler(state: SupportState) -> dict:
+) -> Callable[[SupportState], Awaitable[dict[str, Any]]]:
+    async def escalation_handler(state: SupportState) -> dict[str, Any]:
         classification = state["classification"]
         extracted = state["extracted_info"]
         # Defensive: if upstream nodes catastrophically failed, those would
@@ -50,7 +51,7 @@ def make_escalation_node(
             temperature=escalation.TEMPERATURE,
             fallback=_FALLBACK,
         )
-        update: dict = {"escalation_context": result, "trace": [trace_entry]}
+        update: dict[str, Any] = {"escalation_context": result, "trace": [trace_entry]}
         if err is not None:
             update["errors"] = [err]
         return update

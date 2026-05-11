@@ -8,6 +8,7 @@ failure so the customer always gets a reply.
 from __future__ import annotations
 
 from collections.abc import Awaitable, Callable
+from typing import Any
 
 from app.domain.models import CustomerResponseDraft
 from app.llm.provider import LLMProvider
@@ -29,8 +30,8 @@ _FALLBACK = CustomerResponseDraft(response=_FALLBACK_TEXT)
 def make_customer_response_node(
     provider: LLMProvider,
     max_retries: int = 2,
-) -> Callable[[SupportState], Awaitable[dict]]:
-    async def respond(state: SupportState) -> dict:
+) -> Callable[[SupportState], Awaitable[dict[str, Any]]]:
+    async def respond(state: SupportState) -> dict[str, Any]:
         classification = state["classification"]
         extracted = state["extracted_info"]
         assert classification is not None, "customer_response invoked without classification"
@@ -52,7 +53,7 @@ def make_customer_response_node(
             temperature=customer_response.TEMPERATURE,
             fallback=_FALLBACK,
         )
-        update: dict = {"customer_response": result.response, "trace": [trace_entry]}
+        update: dict[str, Any] = {"customer_response": result.response, "trace": [trace_entry]}
         if err is not None:
             update["errors"] = [err]
         return update
