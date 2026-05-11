@@ -90,8 +90,10 @@ curl -s -X POST http://localhost:8000/api/v1/support/process \
   }' | jq
 ```
 
-Representative response (captured from `make demo-mock --save` — Stage 13 will
-replace this with a real `gpt-4o-mini` run):
+Representative response (the shape; for full real-LLM captures across all
+five sample scenarios, see [`samples/outputs/`](./samples/outputs) —
+produced via `python scripts/demo.py --save` against Qwen-Plus on the
+DashScope OpenAI-compatible endpoint):
 
 ```json
 {

@@ -20,6 +20,7 @@ used so the pipeline still completes.
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import json
 import os
 import re
@@ -32,6 +33,12 @@ import typer
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
+
+# Force UTF-8 stdout on Windows (default cp1252 chokes on real-LLM chars
+# like '→' or smart quotes). `reconfigure` exists from Python 3.7+.
+if hasattr(sys.stdout, "reconfigure"):
+    with contextlib.suppress(AttributeError, OSError):
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 # Force mock provider BEFORE importing app modules in case the user runs
 # `--mock` without an OPENAI_API_KEY in env.

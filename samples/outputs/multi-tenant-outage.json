@@ -1,0 +1,78 @@
+{
+  "scenario_id": "multi_tenant_outage",
+  "processed_at": "2026-05-11T19:52:17.026282+00:00",
+  "raw_message": "Inbound calls aren't connecting for ANY of our tenants since around 9am Eastern. Customers are calling our reps directly. This is hitting our entire production fleet.",
+  "classification": {
+    "category": "outage",
+    "priority": "critical",
+    "escalation_required": true,
+    "confidence": 0.98,
+    "reasoning": "Multi-tenant inbound call failure affecting entire production fleet since 9am ET constitutes a widespread service outage with immediate business impact; 'ANY of our tenants' and 'entire production fleet' indicate systemic failure requiring urgent engineering escalation."
+  },
+  "extracted_info": {
+    "product_area": "inbound_ivr",
+    "issue_summary": "Inbound calls are failing to connect for all tenants, affecting the entire production environment since approximately 09:00 ET.",
+    "urgency": "immediate",
+    "suggested_tags": [
+      "inbound",
+      "outage",
+      "tenant-wide",
+      "production-impact"
+    ],
+    "affected_features": [
+      "inbound calls"
+    ]
+  },
+  "escalation_context": {
+    "severity_level": 5,
+    "suggested_team": "voice-platform",
+    "sla_minutes": 15,
+    "reason": "This is a full-system outage affecting inbound call connectivity across all tenants and production environments, indicating a critical failure in the voice infrastructure. The issue directly involves SIP signaling and call routing for inbound IVR, which falls under the core voice-platform responsibility."
+  },
+  "customer_response": "We understand how disruptive it is that inbound calls aren’t connecting for any of your tenants since this morning, and we sincerely apologise for the impact on your operations. This issue has been escalated as a priority to our voice platform team, who are actively investigating and working to restore service across your production environment. We’ll share meaningful updates as soon as we have more clarity on the resolution path. Thank you for your patience while we address this urgently — the VoiceSpin team.",
+  "internal_summary": {
+    "headline": "All-tenant inbound IVR calls failing since 09:00 ET",
+    "customer_intent": "Immediate restoration of inbound call connectivity for all tenants.",
+    "diagnostic_notes": "Inbound calls are failing to connect across all tenants and the entire production fleet since ~09:00 ET. No tenant-specific scope or partial success is reported — failure is universal and systemic. Affected feature is inbound IVR, indicating breakdown in SIP signaling, call routing, or IVR session initiation.",
+    "recommended_actions": [
+      "Check voice-platform control plane health (SIP proxy, call router, IVR orchestrator) from 08:55 ET onward",
+      "Validate upstream SIP trunk registration and inbound route propagation across all regions",
+      "Review recent deployments or config pushes to inbound routing logic between 08:00–09:00 ET",
+      "Page voice-platform on-call immediately per SLA-15"
+    ],
+    "handoff_team": "voice-platform"
+  },
+  "processing_trace": [
+    {
+      "node": "classify",
+      "duration_ms": 2888,
+      "outcome": "ok",
+      "detail": null
+    },
+    {
+      "node": "extract",
+      "duration_ms": 1963,
+      "outcome": "ok",
+      "detail": null
+    },
+    {
+      "node": "escalation",
+      "duration_ms": 2427,
+      "outcome": "ok",
+      "detail": null
+    },
+    {
+      "node": "customer_response",
+      "duration_ms": 2356,
+      "outcome": "ok",
+      "detail": null
+    },
+    {
+      "node": "internal_summary",
+      "duration_ms": 4406,
+      "outcome": "ok",
+      "detail": null
+    }
+  ],
+  "recovered_errors": []
+}

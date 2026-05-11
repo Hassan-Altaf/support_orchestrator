@@ -1,0 +1,67 @@
+{
+  "scenario_id": "howto_sip_trunk",
+  "processed_at": "2026-05-11T19:52:02.678633+00:00",
+  "raw_message": "We're new to VoiceSpin and trying to configure our SIP trunk. Where do I find documentation on the right SIP signaling settings for our PBX?",
+  "classification": {
+    "category": "how_to",
+    "priority": "low",
+    "escalation_required": false,
+    "confidence": 0.97,
+    "reasoning": "The customer is requesting guidance on SIP configuration—a common onboarding question with no operational impact or urgency. Documentation access is a standard self-service need."
+  },
+  "extracted_info": {
+    "product_area": "sip_trunk",
+    "issue_summary": "New customer needs documentation for correct SIP signaling configuration to integrate their PBX with VoiceSpin.",
+    "urgency": "normal",
+    "suggested_tags": [
+      "sip",
+      "pbx",
+      "setup",
+      "documentation",
+      "onboarding"
+    ],
+    "affected_features": [
+      "SIP trunk"
+    ]
+  },
+  "escalation_context": null,
+  "customer_response": "Welcome to VoiceSpin—we're happy to help you get your SIP trunk up and running smoothly. You can find detailed, step-by-step SIP signaling configuration guides for common PBX platforms in our Help Center under the 'SIP Trunking' section. Our voice platform team regularly updates these resources to reflect best practices and compatibility notes for various systems. If you let us know your PBX model or vendor, we’d be glad to point you to the most relevant guide. Thanks for choosing VoiceSpin—the VoiceSpin team",
+  "internal_summary": {
+    "headline": "New customer requests SIP trunk signaling configuration documentation for PBX integration.",
+    "customer_intent": "The customer wants to locate official documentation detailing correct SIP signaling settings for integrating their PBX with VoiceSpin's SIP trunk.",
+    "diagnostic_notes": "Customer is new to VoiceSpin and in onboarding phase; no errors, outages, or misconfigurations reported—only a request for accessible, accurate setup guidance.",
+    "recommended_actions": [
+      "Locate and verify current SIP trunk setup guide in VoiceSpin Docs (URL: https://docs.voicespin.com/sip-trunk/setup)",
+      "Confirm guide includes PBX-specific examples (e.g., Cisco, Grandstream, FreePBX) and covers required signaling parameters (transport, codecs, auth, registration behavior)",
+      "If missing or outdated, flag for docs team via Jira ticket (project: DOCS, label: sip-trunk-onboarding)"
+    ],
+    "handoff_team": "general-support"
+  },
+  "processing_trace": [
+    {
+      "node": "classify",
+      "duration_ms": 2261,
+      "outcome": "ok",
+      "detail": null
+    },
+    {
+      "node": "extract",
+      "duration_ms": 2251,
+      "outcome": "ok",
+      "detail": null
+    },
+    {
+      "node": "customer_response",
+      "duration_ms": 2561,
+      "outcome": "ok",
+      "detail": null
+    },
+    {
+      "node": "internal_summary",
+      "duration_ms": 5119,
+      "outcome": "ok",
+      "detail": null
+    }
+  ],
+  "recovered_errors": []
+}

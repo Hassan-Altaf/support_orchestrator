@@ -4,11 +4,6 @@ This document captures how I used AI tools to build this assessment, what
 human judgment shaped the design, and how I would run a team of AI-assisted
 engineers on a project of this shape.
 
-> **Note for the reviewer**: places marked `<< PERSONALIZE: ... >>` are where
-> the author of this submission should inject real anecdotes from their own
-> build run before submitting. The structural argument below is intentional;
-> the personal stories make it credible.
-
 ---
 
 ## 1. AI tools used

@@ -1,0 +1,65 @@
+{
+  "scenario_id": "feature_request_slack",
+  "processed_at": "2026-05-11T19:52:28.399347+00:00",
+  "raw_message": "Hey - it would be amazing if VoiceSpin could push missed-call alerts to our Slack workspace. Right now our team has to manually check the dashboard which slows everything down.",
+  "classification": {
+    "category": "feature_request",
+    "priority": "medium",
+    "escalation_required": false,
+    "confidence": 0.98,
+    "reasoning": "This is a request for a new integration (Slack missed-call alerts) to improve workflow efficiency; it’s not a bug, access issue, or outage, and while valuable, it doesn’t block core functionality or impact service availability."
+  },
+  "extracted_info": {
+    "product_area": "integrations",
+    "issue_summary": "Customer requests integration to send missed-call alerts directly to Slack, eliminating the need to manually check the dashboard.",
+    "urgency": "normal",
+    "suggested_tags": [
+      "slack",
+      "missed-call",
+      "notification",
+      "integration",
+      "alert"
+    ],
+    "affected_features": []
+  },
+  "escalation_context": null,
+  "customer_response": "Thanks for sharing this idea — we completely understand how helpful it would be to receive missed-call alerts directly in Slack instead of checking the dashboard manually. We've passed your request along to our integrations team for review as part of their ongoing roadmap planning. While we can't confirm timing or implementation details at this stage, feedback like yours helps shape future enhancements. The VoiceSpin team",
+  "internal_summary": {
+    "headline": "Feature request: Slack integration for automated missed-call alerts",
+    "customer_intent": "The customer wants VoiceSpin to implement a new Slack integration that automatically delivers missed-call alerts to their Slack workspace.",
+    "diagnostic_notes": "This is a feature request, not a malfunction or outage. No errors, logs, or system anomalies are reported. The current workflow requires manual dashboard checks, causing operational delay but no service degradation.",
+    "recommended_actions": [
+      "Add 'Slack missed-call alert' to integrations backlog with priority=medium",
+      "Confirm if customer is on a plan that supports custom webhook or API-based notifications",
+      "Document required Slack permissions (e.g., incoming webhooks) and VoiceSpin alert payload schema"
+    ],
+    "handoff_team": "integrations"
+  },
+  "processing_trace": [
+    {
+      "node": "classify",
+      "duration_ms": 2644,
+      "outcome": "ok",
+      "detail": null
+    },
+    {
+      "node": "extract",
+      "duration_ms": 1872,
+      "outcome": "ok",
+      "detail": null
+    },
+    {
+      "node": "customer_response",
+      "duration_ms": 2184,
+      "outcome": "ok",
+      "detail": null
+    },
+    {
+      "node": "internal_summary",
+      "duration_ms": 4374,
+      "outcome": "ok",
+      "detail": null
+    }
+  ],
+  "recovered_errors": []
+}

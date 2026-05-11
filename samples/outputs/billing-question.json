@@ -1,0 +1,66 @@
+{
+  "scenario_id": "billing_question",
+  "processed_at": "2026-05-11T19:51:50.195648+00:00",
+  "raw_message": "Hi - I think we got billed twice for our March subscription. Could someone look into it and send me a corrected invoice?",
+  "classification": {
+    "category": "billing",
+    "priority": "medium",
+    "escalation_required": false,
+    "confidence": 0.98,
+    "reasoning": "Duplicate billing is a financial discrepancy requiring correction, but it does not block service or impact real-time operations; resolution is time-sensitive but not urgent."
+  },
+  "extracted_info": {
+    "product_area": "billing",
+    "issue_summary": "Customer suspects a double charge for the March subscription and requests a corrected invoice.",
+    "urgency": "normal",
+    "suggested_tags": [
+      "billing",
+      "invoice",
+      "double-charge",
+      "march-billing"
+    ],
+    "affected_features": []
+  },
+  "escalation_context": null,
+  "customer_response": "Thanks for reaching out—we understand how important it is to have accurate and transparent billing, and we’ll take a close look at your March subscription charges. Our billing team will review the transaction details and follow up with you directly regarding any adjustments or a corrected invoice. You can expect an update from us within the next few business days. We appreciate your patience and partnership—the VoiceSpin team.",
+  "internal_summary": {
+    "headline": "Customer reports possible duplicate March subscription charge; requests corrected invoice.",
+    "customer_intent": "The customer wants confirmation of a duplicate March charge and issuance of a corrected invoice.",
+    "diagnostic_notes": "Customer reports suspected double billing for March subscription; no transaction IDs, dates, or account details provided; billing category confirmed with medium priority and normal urgency.",
+    "recommended_actions": [
+      "Retrieve the customer's March billing records using account ID from support ticket.",
+      "Verify all March subscription charges: amount, date, invoice number, and payment status.",
+      "Cross-check against payment gateway logs for duplicate authorization or settlement events.",
+      "Generate corrected invoice if duplication is confirmed, or draft explanatory note if not.",
+      "Send corrected invoice (or explanation) directly to customer via secure channel."
+    ],
+    "handoff_team": "billing-ops"
+  },
+  "processing_trace": [
+    {
+      "node": "classify",
+      "duration_ms": 2001,
+      "outcome": "ok",
+      "detail": null
+    },
+    {
+      "node": "extract",
+      "duration_ms": 2047,
+      "outcome": "ok",
+      "detail": null
+    },
+    {
+      "node": "customer_response",
+      "duration_ms": 2778,
+      "outcome": "ok",
+      "detail": null
+    },
+    {
+      "node": "internal_summary",
+      "duration_ms": 4804,
+      "outcome": "ok",
+      "detail": null
+    }
+  ],
+  "recovered_errors": []
+}

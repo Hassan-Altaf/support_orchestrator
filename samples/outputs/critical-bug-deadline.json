@@ -1,0 +1,81 @@
+{
+  "scenario_id": "critical_bug_deadline",
+  "processed_at": "2026-05-11T19:51:38.244339+00:00",
+  "raw_message": "Our mobile app keeps crashing right after login for all our supervisors. We have a board demo in 2 hours and the team can't see the dashboard. Please help urgently!",
+  "classification": {
+    "category": "technical_bug",
+    "priority": "critical",
+    "escalation_required": true,
+    "confidence": 0.94,
+    "reasoning": "Mobile app crash blocking all supervisors from accessing the dashboard immediately before a board demo constitutes a critical operational failure; the phrase 'for all our supervisors' signals broad internal impact, triggering escalation."
+  },
+  "extracted_info": {
+    "product_area": "mobile_app",
+    "issue_summary": "The VoiceSpin mobile app crashes immediately after login for all supervisors, preventing access to the dashboard ahead of a scheduled board demo.",
+    "urgency": "immediate",
+    "suggested_tags": [
+      "mobile-app",
+      "crash",
+      "login",
+      "dashboard",
+      "supervisor"
+    ],
+    "affected_features": [
+      "mobile app",
+      "dashboard"
+    ]
+  },
+  "escalation_context": {
+    "severity_level": 4,
+    "suggested_team": "voice-platform",
+    "sla_minutes": 60,
+    "reason": "This is a critical, widespread crash preventing all supervisors from accessing the dashboard ahead of a board demo—constituting a significant operational impact (severity 4). The issue originates in the mobile app’s post-login flow and dashboard rendering, which falls under the voice-platform team’s ownership of client-side telephony and UI functionality."
+  },
+  "customer_response": "We understand how critical it is for your supervisors to access the dashboard ahead of your board demo, and we’ve urgently escalated this mobile app crash issue to our voice platform team for immediate investigation. They’re actively working to restore stable login functionality across supervisor accounts. We’ll keep you updated as soon as we have meaningful progress to share. Thank you for your patience—the VoiceSpin team.",
+  "internal_summary": {
+    "headline": "Mobile app crashes for all supervisors immediately after login, blocking dashboard access pre-board demo",
+    "customer_intent": "Immediate resolution of mobile app crashes on supervisor login to restore dashboard access before a board demo.",
+    "diagnostic_notes": "Mobile app crashes consistently immediately after login for all supervisors; impact is broad and time-sensitive, occurring just prior to a scheduled board demo; dashboard access is fully blocked.",
+    "recommended_actions": [
+      "Retrieve latest crash logs from iOS/Android supervisors (focus on post-auth and dashboard init stack traces)",
+      "Check recent mobile app release versions deployed to supervisors (e.g., v4.2.1+), including any hotfixes pushed in last 24h",
+      "Validate backend auth token handling and dashboard data payload size/response structure for supervisor accounts",
+      "Reproduce crash using a supervisor test account on latest production app builds (iOS + Android)",
+      "Page voice-platform on-call with crash logs and reproduction steps"
+    ],
+    "handoff_team": "voice-platform"
+  },
+  "processing_trace": [
+    {
+      "node": "classify",
+      "duration_ms": 3221,
+      "outcome": "ok",
+      "detail": null
+    },
+    {
+      "node": "extract",
+      "duration_ms": 2347,
+      "outcome": "ok",
+      "detail": null
+    },
+    {
+      "node": "escalation",
+      "duration_ms": 2783,
+      "outcome": "ok",
+      "detail": null
+    },
+    {
+      "node": "customer_response",
+      "duration_ms": 2427,
+      "outcome": "ok",
+      "detail": null
+    },
+    {
+      "node": "internal_summary",
+      "duration_ms": 4282,
+      "outcome": "ok",
+      "detail": null
+    }
+  ],
+  "recovered_errors": []
+}
