@@ -1,0 +1,26 @@
+# Single-service compose file for local development and the assessment demo.
+# Production deployments would wire this into a reverse proxy + secret store
+# rather than reading .env directly.
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: support-orchestrator:latest
+    container_name: support-orchestrator
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    restart: unless-stopped
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import sys, urllib.request; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health', timeout=3).status == 200 else 1)"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s

@@ -1,0 +1,25 @@
+# Keep the build context small and prevent leaking secrets / caches.
+.git/
+.github/
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+coverage.xml
+.env
+.env.*
+!.env.example
+samples/outputs/*.json
+tests/fixtures/recordings/*.json
+*.md
+!README.md
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+.claude/
